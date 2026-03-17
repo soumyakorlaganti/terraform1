@@ -1,18 +1,16 @@
 resource "aws_instance" "example" {
-  #count = 10
-  count = length(var.instances)
   ami           = "ami-0220d79f3f480ecf5"
   instance_type = "t3.micro"
   vpc_security_group_ids = [aws_security_group.allow_tls.id]
 
-  tags = {
-    Name = var.instances[count.index]
-    Project = "roboshop"
-  }
+  tags = merge (
+    var.common_tags,
+    var.ec2_tags
+  )
 }
 
 resource "aws_security_group" "allow_tls" {
-  name        = "allow-all-roboshop" # this is for AWS account
+  name        = "allow-all-terraform" # this is for AWS account
   description = "Allow TLS inbound traffic and all outbound traffic"
 
   egress {
@@ -31,7 +29,8 @@ resource "aws_security_group" "allow_tls" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  tags = {
-    Name = "allow-all-terraform"
-  }
+  tags = merge(
+    var.common_tags,
+    var.sg_tags
+  )
 }
